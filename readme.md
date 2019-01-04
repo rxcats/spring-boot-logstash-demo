@@ -71,7 +71,7 @@ docker pull logstash:6.5.4
 docker build -t docker-logstash .
 
 ; run
-docker run -d -p 5000:5000 --restart=always --name docker-logstash docker-logstash
+docker run -d --restart=always --name docker-logstash docker-logstash
 
 ; logs
 docker logs -f docker-logstash
