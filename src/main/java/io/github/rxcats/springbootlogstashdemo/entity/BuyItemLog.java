@@ -13,6 +13,10 @@ public class BuyItemLog {
 
     private String options;
 
+    private String priceType;
+
+    private Long price;
+
     private LocalDateTime eventDate;
 
     private UserInfo userInfo;

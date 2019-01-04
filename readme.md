@@ -17,6 +17,7 @@ docker run -d --name kibana -p 5601:5601 --restart=always kibana:6.5.4
 - save as logstash.yml
 ```yaml
 http.host: "0.0.0.0"
+xpack.monitoring.enabled: true
 xpack.monitoring.elasticsearch.url: http://192.168.99.100:9200
 ```
 
@@ -24,13 +25,12 @@ xpack.monitoring.elasticsearch.url: http://192.168.99.100:9200
 ```
 input {
   redis {
-    host => "127.0.0.1"
-    type => "redis-input"
-    # these settings should match the output of the agent
+    db => 0
+    host => "192.168.99.100"
+    port => 6379
+    ssl => false
     data_type => "list"
     key => "logstash"
-    # We use json_event here since the sender is a logstash agent
-    message_format => "json_event"
   }
 }
 
@@ -41,33 +41,8 @@ filter {
 }
 
 output {
-  stdout{
-    codec => rubydebug
-  }
-  elasticsearch {
-    hosts => "192.168.99.100:9200"
-  }
-}
-```
-
-- save as logstash.conf
-```
-input {
-  tcp {
-    port => 5000
+  stdout {
     codec => json
-  }
-}
- 
-filter {
-  json {
-    source => "message"
-  }
-}
- 
-output {
-  stdout{
-    codec => rubydebug
   }
   elasticsearch {
     hosts => "192.168.99.100:9200"
@@ -82,11 +57,8 @@ RUN rm -f /usr/share/logstash/config/logstash-sample.conf
 RUN rm -f /usr/share/logstash/pipeline/logstash.conf
 
 COPY --chown=logstash:root logstash.yml /usr/share/logstash/config/logstash.yml
-
-COPY --chown=logstash:root logstash.conf /usr/share/logstash/pipeline/logstash.conf
 COPY --chown=logstash:root logstash-redis.conf /usr/share/logstash/pipeline/logstash-redis.conf
 
-EXPOSE 5000
 CMD ["logstash"]
 ```
 

@@ -34,6 +34,8 @@ public class LogController {
         logBody.setEventDate(LocalDateTime.now());
         logBody.setItemId(1);
         logBody.setItemQty(1L);
+        logBody.setPriceType("gold");
+        logBody.setPrice(100L);
         logBody.setUserInfo(userInfo);
 
         redisTemplate.opsForList().leftPush(logKey, logBody);
