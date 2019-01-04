@@ -1,0 +1,7 @@
+POST http://localhost:8080/log/buyitem
+Content-Type: application/json
+
+{
+}
+
+###
