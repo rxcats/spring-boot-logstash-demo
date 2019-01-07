@@ -59,7 +59,7 @@ input {
     port => 6379
     ssl => false
     data_type => "list"
-    key => "logstash"
+    key => "buy_item_log"
   }
 }
 
@@ -75,6 +75,7 @@ output {
   }
   elasticsearch {
     hosts => "192.168.99.100:9200"
+    index => "buy_item_log"
   }
 }
 ```
