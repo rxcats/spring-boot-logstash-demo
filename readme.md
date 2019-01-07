@@ -5,12 +5,41 @@
 docker run -d -p 6379:6379 --restart=always --name redis redis
 ```
 
-## installation elasticsearch, kibana docker image
+## installation elasticsearch docker image
 ```
-docker run -d --name elasticsearch -p 9200:9200 -p 9300:9300 --restart=always -e "discovery.type=single-node" elasticsearch:6.5.4
+docker run -d --name elasticsearch -p 9200:9200 -p 9300:9300 --restart=always -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:6.5.4
+```
 
-docker run -d --name kibana -p 5601:5601 --restart=always kibana:6.5.4
+## installation kibana docker image
+
+- save as kibana.yml
+```yaml
+# Default Kibana configuration from kibana-docker.
+
+server.name: kibana
+server.host: "0"
+elasticsearch.url: http://192.168.99.100:9200
+xpack.monitoring.ui.container.elasticsearch.enabled: true
 ```
+
+- save as Dockerfile
+```dockerfile
+FROM docker.elastic.co/kibana/kibana:6.5.4
+
+COPY --chown=kibana:root kibana.yml /usr/share/kibana/config/kibana.yml
+
+EXPOSE 5601
+CMD ["kibana"]
+```
+
+- installation
+```
+docker build -t docker-kibana .
+docker stop kibana
+docker rm kibana
+docker run -d  -p 5601:5601 --restart=always --name kibana docker-kibana
+```
+
 
 ## installation custom logstash docker image
 
@@ -52,7 +81,7 @@ output {
 
 - save as Dockerfile
 ```dockerfile
-FROM logstash:6.5.4
+FROM docker.elastic.co/logstash/logstash:6.5.4
 RUN rm -f /usr/share/logstash/config/logstash-sample.conf
 RUN rm -f /usr/share/logstash/pipeline/logstash.conf
 
@@ -64,15 +93,13 @@ CMD ["logstash"]
 
 - installation
 ```
-; download image
-docker pull logstash:6.5.4
-
-; build
 docker build -t docker-logstash .
+docker stop logstash
+docker rm logstash
+docker run -d --restart=always --name logstash docker-logstash
+```
 
-; run
-docker run -d --restart=always --name docker-logstash docker-logstash
-
-; logs
-docker logs -f docker-logstash
+- logs
+```
+docker logs -f logstash
 ```

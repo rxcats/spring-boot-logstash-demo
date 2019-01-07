@@ -1,4 +1,3 @@
----
 # Default Kibana configuration from kibana-docker.
 
 server.name: kibana
