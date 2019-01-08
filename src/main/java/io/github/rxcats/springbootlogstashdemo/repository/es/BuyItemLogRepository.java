@@ -8,13 +8,11 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
-import org.elasticsearch.search.aggregations.metrics.sum.SumAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
@@ -39,15 +37,16 @@ public class BuyItemLogRepository {
 
     public List<BuyItemLog> search(int from, int size) {
 
-        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-        sourceBuilder.sort(new FieldSortBuilder("eventDate").order(SortOrder.DESC));
-        sourceBuilder.from(from);
-        sourceBuilder.size(size);
+        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource()
+            .sort(new FieldSortBuilder("eventDate").order(SortOrder.DESC))
+            .from(from)
+            .size(size);
 
         SearchRequest request = new SearchRequest("buy_item_log");
         request.source(sourceBuilder);
 
         List<BuyItemLog> results = new ArrayList<>();
+
         try {
             SearchResponse response = client.search(request, RequestOptions.DEFAULT);
             SearchHits hits = response.getHits();
@@ -60,22 +59,16 @@ public class BuyItemLogRepository {
         }
 
         return results;
+
     }
 
     public long sumOfItemQty(int itemId) {
 
+        SearchSourceBuilder builder = SearchSourceBuilder.searchSource()
+            .query(QueryBuilders.matchQuery("itemId", itemId))
+            .aggregation(AggregationBuilders.sum("agg").field("itemQty"));
+
         SearchRequest request = new SearchRequest("buy_item_log");
-
-        SearchSourceBuilder builder = new SearchSourceBuilder();
-
-        QueryBuilder matchQueryBuilder = QueryBuilders.matchQuery("itemId", itemId);
-
-        builder.query(matchQueryBuilder);
-
-        SumAggregationBuilder aggregation = AggregationBuilders.sum("agg").field("itemQty");
-
-        builder.aggregation(aggregation);
-
         request.source(builder);
 
         long sum = 0;
