@@ -1,5 +1,7 @@
 package io.github.rxcats.springbootlogstashdemo.controller;
 
+import java.util.stream.IntStream;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,9 +21,19 @@ class LogControllerTest {
     TestRestTemplate restTemplate;
 
     @Test
-    void sendLogTest() throws Exception {
+    void sendLogTest() {
         String response = restTemplate.postForObject("http://localhost:" + port + "/log/buyitem", null, String.class);
         log.info("response:{}", response);
+    }
+
+    @Test
+    void sendLogBulkTest() {
+        IntStream.rangeClosed(1, 100000).parallel().forEach(i -> {
+            restTemplate.postForObject("http://localhost:" + port + "/log/buyitem", null, String.class);
+            if (i % 1000 == 1) {
+                log.info("i:{}", i);
+            }
+        });
     }
 
 }
