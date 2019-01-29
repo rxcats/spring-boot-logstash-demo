@@ -1,1 +1,1 @@
-docker build -t docker-logstash .;docker stop logstash;docker rm logstash;docker run -d --restart=always --name logstash docker-logstash
+docker build -t docker-logstash:6.5.4 .;docker stop logstash;docker rm logstash;docker run -d --restart=always --name logstash docker-logstash:6.5.4
